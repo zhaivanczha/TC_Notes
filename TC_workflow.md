@@ -141,7 +141,7 @@ In principle, there are two `runtype` calculations in Jastrow optimization of CA
 #### package:
 PYTCHINT
 #### installation:
-1. git clone git@github.com:fkfest/pytchint.git && cd pytchint
+1. git clone git@github.com:fkfest/pytchint.git (private repository of FKFEST) && cd pytchint
 2. mamba env create -f environment.yml  # or: conda env create -f environment.yml
 3. conda activate pytchint
 4. pip install -e . (editable)
