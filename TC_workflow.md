@@ -20,7 +20,7 @@
 4. Point group symmetry
 ## Step 2: Generate Jastrow
 #### package: 
-- CASINO
+- CASINO[TODO: deterministic optimization in PYTCHINT]
 #### installation: 
 1. git clone git@github.com:fkfest/CASINO.git (private repository of FKFEST)
 2. cd CASINO && ./install
@@ -93,11 +93,12 @@ checkpoint : -1
 ```
 and change it accordingly. Then run the command `runqmc -n1 -c -xxx` to generate the `casino` slurm submitting script (the `-c` means only generate script without submission).
 In principle, there are two `runtype` calculations in Jastrow optimization of CASINO for TC: 
-1. `gen_gpcc/gen_gpcc_simple/gen_gpcc_simple` (optional)  [TODO: difference between them; the reason why using them]
+1. `gen_gpcc/gen_gpcc_simple/gen_gpcc_simple` (~~optional~~/mandatory)  [TODO: difference between them; if this will influence the en cusp in $\chi$ ]
 	- A Jastrow factor to correct the electron-nucleui cusp (e-n cusp) for orbitals: 
 		   $f(r) = \left[ \log \left( e^{\sum_{k=0}^{4} \alpha_k r^k} + C \right) - \log \phi_s(r) \right] \Theta(L - r)$
-	- Also called `hat` function
+	- Also called `hat` function; it is used to stabilize the VMC optimization procedure.
 	- Before the next step, the generated `gpcc.gasl` should be copied to the `vmc_opt` directory and renamed as `parameters.casl`
+	- It seems that now the CASINO will default assume the user use the gpcc and the determined parameter in $\chi$ will no longer consider the cusp condition (refer to [[TC_workflow#^1f73cb]]). 
 2. `vmc_opt` (mandatory)
 	- There should be two steps of VMC, the first is a rough VMC followed by a more precise one
 	- The `gjastrow` form of CASINO can be used to generate different types of Jastrow factor. The commonly-used one is Drummond–Towler–Needs (DTN) factor, which can be expanded by `natural power` basis function: $\phi_k(r)=r^{k-1}$
@@ -106,9 +107,10 @@ In principle, there are two `runtype` calculations in Jastrow optimization of CA
    $$J(r)=e^{[\sum_k c_k \phi_k(r)]\times f(r)}$$.  
      Therefore, the e-e cusp condition $\lim_{r_{ij}\rightarrow 0} \frac{\partial u(r_{ij})}{\partial r_{ij}}=1/2$ will result in:
    $$c_1 \times(-\frac{C}{L})+ c_2=1/2 \rightarrow c_1=(c_2-1/2)\times\frac{L}{C}$$  
-   ; the same, the e-n cusp condition $\lim_{r_{Ii}\rightarrow 0} \frac{\partial u(r_{Ii})}{\partial r_{Ii}}=-Z$ result in:
+   ; the same, the e-n cusp condition $\lim_{r_{Ii}\rightarrow 0} \frac{\partial \chi(r_{Ii})}{\partial r_{Ii}}=-Z$ result in:
    $$c_1=(c_2+Z)\times\frac{L}{C}.$$  
-     The CASINO will not print the determined $c_1$ out unless add `Print determined: T` in the `parameters.casl`.
+     However, consideration of gpcc has already treated the en cusp, as a result, $\lim_{r_{Ii}\rightarrow 0} \frac{\partial \chi(r_{Ii})}{\partial r_{Ii}}=0$ and $c_1=c_2\times\frac{L}{C}$.  
+     The CASINO will not print the determined $c_1$ out unless add `Print determined: T` in the `parameters.casl`. ^1f73cb
 	- There are different channels of `gjastrow`, it can be used to distinguish the different spin of electron pairs; the e-n terms of different atoms. Usually, we only distinguish the e-n terms between different elements.
 	- `opt_method` should be set to `varmin` to avoid the over-corrected cusp effect, the `emin` will introduce the non-variational energy in the TC result. (`emin` in VMC can provide a lower VMC energy and therefore DMC energy, *but not stable as `varmin`*[TODO: not sure])
 - Note:
@@ -116,7 +118,7 @@ In principle, there are two `runtype` calculations in Jastrow optimization of CA
 		- e-e order: 9, e-e cutoff: 4.5
 		- e-n order: 9, e-n cutoff: 4 (1)
 		- e-e-n order: 4; e-e-n cutoff: 4 (2)
-	2. The Jastrow factor used in VMC and TC only rely on the radial distance between two particles, i.e. the r is a scalar instead of vector. (not important and also brings a lot computational efforts)
+	2. The Jastrow factor used in VMC and TC only rely on the radial distance between two particles (isotropic), i.e. the r is a scalar instead of vector. (not important and also brings a lot computational efforts)
 	3. `DMC` will be contained in all files, even though it will not be performed
 	4. Backflow should not be used in Jastrow optimization for TC, since it gives optimal Jastorw factor for backflow Slater-jastrow but not for Slater-Jastrow
 	5. The speed and memory requirement of VMC is not related to the basis set, so small basis set might have a slower speed and also larger memory requirement. E.g. STO-3G for $N_2$ and cc-pvdz for $CO_2$
