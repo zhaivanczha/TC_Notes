@@ -100,14 +100,14 @@ In principle, there are two `runtype` calculations in Jastrow optimization of CA
 	- Before the next step, the generated `gpcc.gasl` should be copied to the `vmc_opt` directory and renamed as `parameters.casl`
 2. `vmc_opt` (mandatory)
 	- There should be two steps of VMC, the first is a rough VMC followed by a more precise one
-	- The `gjastrow` form of CASINO can be used to generate different types of Jastrow factor. The commonly-used one is Drummond–Towler–Needs (DTN) factor, which can be expanded by `natural power` basis function:$\phi_k(r)=r^{k-1}$
-     times `polynomial` cutoff function:$f(r)=(1-r/L)^C\Theta(L-r)$.
-     The Jastrow factor is written as:
-   $$J(r)=e^{[\sum_k c_k \phi_k(r)]\times f(r)}$$
+	- The `gjastrow` form of CASINO can be used to generate different types of Jastrow factor. The commonly-used one is Drummond–Towler–Needs (DTN) factor, which can be expanded by `natural power` basis function: $\phi_k(r)=r^{k-1}$
+     times `polynomial` cutoff function: $f(r)=(1-r/L)^C\Theta(L-r)$.
+     The Jastrow factor is written as:  
+   $$J(r)=e^{[\sum_k c_k \phi_k(r)]\times f(r)}$$.  
      Therefore, the e-e cusp condition $\lim_{r_{ij}\rightarrow 0} \frac{\partial u(r_{ij})}{\partial r_{ij}}=1/2$ will result in:
-   $$c_1 \times(-\frac{C}{L})+ c_2=1/2 \rightarrow c_1=(c_2-1/2)\times\frac{L}{C}$$
+   $$c_1 \times(-\frac{C}{L})+ c_2=1/2 \rightarrow c_1=(c_2-1/2)\times\frac{L}{C}$$  
    ; the same, the e-n cusp condition $\lim_{r_{Ii}\rightarrow 0} \frac{\partial u(r_{Ii})}{\partial r_{Ii}}=-Z$ result in:
-   $$c_1=(c_2+Z)\times\frac{L}{C}.$$
+   $$c_1=(c_2+Z)\times\frac{L}{C}.$$  
      The CASINO will not print the determined $c_1$ out unless add `Print determined: T` in the `parameters.casl`.
 	- There are different channels of `gjastrow`, it can be used to distinguish the different spin of electron pairs; the e-n terms of different atoms. Usually, we only distinguish the e-n terms between different elements.
 	- `opt_method` should be set to `varmin` to avoid the over-corrected cusp effect, the `emin` will introduce the non-variational energy in the TC result. (`emin` in VMC can provide a lower VMC energy and therefore DMC energy, *but not stable as `varmin`*[TODO: not sure])
